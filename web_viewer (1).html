@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web Viewer</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: #0f1117; color: #f4f5f7;
+    font: 16px system-ui, sans-serif; display: flex; flex-direction: column;
+  }
+  header { width: min(900px, 92%); margin: 54px auto 18px; }
+  h1 { margin: 0 0 8px; font-size: 30px; }
+  p { color: #aeb5c2; margin: 0; line-height: 1.5; }
+  .controls { width: min(900px, 92%); margin: 18px auto; display: flex; gap: 10px; }
+  input {
+    flex: 1; min-width: 0; padding: 14px 16px; border-radius: 10px;
+    border: 1px solid #343a46; background: #191e28; color: white; font-size: 16px;
+  }
+  button {
+    padding: 0 22px; border: 0; border-radius: 10px; background: #6d7cff;
+    color: white; font-weight: 650; font-size: 15px; cursor: pointer;
+  }
+  button:hover { background: #8490ff; }
+  #status { width: min(900px, 92%); margin: 0 auto 12px; color: #aeb5c2; font-size: 13px; }
+  iframe {
+    width: min(1100px, 94%); height: 62vh; min-height: 360px; margin: 0 auto 30px;
+    border: 1px solid #343a46; border-radius: 12px; background: white;
+  }
+  @media (max-width: 560px) {
+    header { margin-top: 30px; }
+    .controls { flex-direction: column; }
+    button { padding: 14px; }
+    iframe { height: 58vh; min-height: 300px; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Web Viewer</h1>
+    <p>Enter a website address to preview it here. Only use sites you’re allowed to access.</p>
+  </header>
+  <form class="controls" id="form">
+    <input id="url" type="text" placeholder="https://example.com" autocomplete="url" required>
+    <button type="submit">Open preview</button>
+  </form>
+  <div id="status" role="status">Some websites block being displayed inside other pages, so they may not load here.</div>
+  <iframe id="viewer" title="Website preview" referrerpolicy="no-referrer"></iframe>
+<script>
+  const form = document.getElementById('form');
+  const input = document.getElementById('url');
+  const frame = document.getElementById('viewer');
+  const status = document.getElementById('status');
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    let value = input.value.trim();
+    if (!/^https?:\/\//i.test(value)) value = 'https://' + value;
+    let parsed;
+    try { parsed = new URL(value); }
+    catch { status.textContent = 'Please enter a valid website address.'; return; }
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      status.textContent = 'Please use an http or https website address.';
+      return;
+    }
+    frame.src = parsed.href;
+    status.textContent = 'Loading preview: ' + parsed.hostname;
+  });
+</script>
+</body>
+</html>
